@@ -1,17 +1,10 @@
 
 #pragma  once
-#include <xstring>
-#include <vector>
-#include <WinSock2.h>  
-#include <WS2tcpip.h>  
-#include <thread>
+#include "GeneralSock.h"
 
 #include "NetSpinLock.h"
 
-#pragma comment(lib,"ws2_32.lib")
-using namespace std;
-
-class CSocketClient
+class CSocketClient : public CGeneralSock
 {
 public:
 	CSocketClient(const string strIp, unsigned short nPort);
@@ -20,8 +13,8 @@ public:
 	bool StartConnectGuard();
 	void StopConnect();
 
-	void PushSendMsg(const string& strSend);
-	bool PopRecvMsg(string& strRecv);
+	void PushSendMsg(const GsBuffer& strSend);
+	bool PopRecvMsg(GsBuffer& strRecv);
 
 	void HangConnect();		// connect (hang up)
 	void HangSend();		// send (hang up)
@@ -29,26 +22,21 @@ public:
 
 private:
 
-	bool InitWinSock();
-	bool CreateWinSock(SOCKET &listenScok);
 	bool ProvideConnect();
 	bool ConnectServer(SOCKET &conSock, const string ip, const unsigned short port);
 
 private:
 
-	string mIp;
-	unsigned short mPort;
 	bool bQuitClient;
-	SOCKET mClientSock;
 
 	CNetSpinLock mConnectStateLock;
 	bool bConnected;
 
 	CNetSpinLock mSendMsgLock;
-	vector<string> mSendMsgs;
+	vector<GsBuffer> mSendMsgs;
 
 	CNetSpinLock mRevMsgLock;
-	vector<string> mRevMsgs;
+	vector<GsBuffer> mRevMsgs;
 	
 };
 
